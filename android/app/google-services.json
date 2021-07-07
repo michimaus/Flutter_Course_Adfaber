@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "307065956957",
+    "project_id": "adfaberlesson",
+    "storage_bucket": "adfaberlesson.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:307065956957:android:f2df88d98fc4978cbdfbb4",
+        "android_client_info": {
+          "package_name": "com.example.lectia2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "307065956957-o9mevevfksf25jlsa01hagl54orlklu5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCiWsMieXHK3Dy-awbQyyhrTJAZFzA0ns4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "307065956957-o9mevevfksf25jlsa01hagl54orlklu5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
