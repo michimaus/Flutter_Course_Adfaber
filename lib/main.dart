@@ -1,12 +1,23 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:lectia2/screens/login_screen.dart';
 import 'package:lectia2/screens/register_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
+void main() async {
+
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+
+  MyApp.preferences = await SharedPreferences.getInstance();
+
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
+
+  static late SharedPreferences preferences;
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -25,8 +36,8 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       // home: MyHomePage(title: 'Flutter Demo Home Page'),
-      // home: RegisterScreen(),
-      home: LoginScreen(),
+      home: RegisterScreen(),
+      // home: LoginScreen(),
     );
   }
 }
