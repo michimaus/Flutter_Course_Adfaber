@@ -18,15 +18,14 @@ class RegisterScreen extends StatelessWidget {
   void register(String email, String password, BuildContext context) async {
     User? user;
 
-    if (_formKey.currentState!.validate()) {
+    if (_formKey.currentState!.validate() == true) {
       user = await _auth.registerUser(email, password);
-    }
 
-    if (user == null) {
-    } else {
-      MyApp.preferences.setString('userEmail', user.email ?? 'No email!');
-      Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => MainScreen()));
+      if (user != null) {
+        MyApp.preferences.setString('userEmail', user.email ?? '<no email>');
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => MainScreen()));
+      }
     }
   }
 
@@ -73,11 +72,12 @@ class RegisterScreen extends StatelessWidget {
                       color: Colors.red,
                     )),
                   ),
-                  validator: (val) {
-                    if (val == null || val.isEmpty)
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
                       return "Required field.";
-                    else
+                    } else {
                       return null;
+                    }
                   },
                 ),
               ),

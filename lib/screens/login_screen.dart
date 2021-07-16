@@ -18,15 +18,14 @@ class LoginScreen extends StatelessWidget {
   void login(String email, String password, BuildContext context) async {
     User? user;
 
-    if (_formKey.currentState!.validate()) {
+    if (_formKey.currentState!.validate() == true) {
       user = await _auth.loginUser(email, password);
-    }
 
-    if (user == null) {
-    } else {
-      MyApp.preferences.setString('userEmail', user.email ?? 'No email!');
-      Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => MainScreen()));
+      if (user != null) {
+        MyApp.preferences.setString('userEmail', user.email ?? '<no email>');
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => MainScreen()));
+      }
     }
   }
 
@@ -68,14 +67,14 @@ class LoginScreen extends StatelessWidget {
                           )),
                           errorBorder: OutlineInputBorder(
                               borderSide: BorderSide(
-                                width: 2,
-                                color: Colors.red,
-                              )),
+                            width: 2,
+                            color: Colors.red,
+                          )),
                           focusedErrorBorder: OutlineInputBorder(
                               borderSide: BorderSide(
-                                width: 3,
-                                color: Colors.red,
-                              )),
+                            width: 3,
+                            color: Colors.red,
+                          )),
                         ),
                         validator: (val) {
                           if (val == null || val.isEmpty)
@@ -110,14 +109,14 @@ class LoginScreen extends StatelessWidget {
                           )),
                           errorBorder: OutlineInputBorder(
                               borderSide: BorderSide(
-                                width: 2,
-                                color: Colors.red,
-                              )),
+                            width: 2,
+                            color: Colors.red,
+                          )),
                           focusedErrorBorder: OutlineInputBorder(
                               borderSide: BorderSide(
-                                width: 3,
-                                color: Colors.red,
-                              )),
+                            width: 3,
+                            color: Colors.red,
+                          )),
                         ),
                         validator: (val) {
                           if (val == null || val.length < 6)

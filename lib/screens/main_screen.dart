@@ -4,7 +4,7 @@ import 'package:lectia2/main.dart';
 import 'package:lectia2/screens/login_screen.dart';
 
 class MainScreen extends StatelessWidget {
-  logOut(BuildContext context) {
+  logout(BuildContext context) {
     MyApp.preferences.remove('userEmail');
     Navigator.of(context).popUntil((route) => route.isFirst);
     Navigator.of(context).pushReplacement(
@@ -15,16 +15,14 @@ class MainScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Good day " +
-            (MyApp.preferences.getString('userEmail') ?? 'to you') +
-            '!'),
+        title: Text(MyApp.preferences.getString('userEmail') ?? '<no email>'),
         actions: [
           MaterialButton(
             child: Text('Logout'),
             onPressed: () {
-              logOut(context);
+              logout(context);
             },
-          ),
+          )
         ],
       ),
     );
