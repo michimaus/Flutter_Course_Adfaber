@@ -10,9 +10,10 @@ import 'package:lectia2/screens/search_news_screen.dart';
 class MainScreen extends StatelessWidget {
   logout(BuildContext context) {
     MyApp.preferences.remove('userEmail');
+    MyApp.preferences.remove('userId');
+
     Navigator.of(context).popUntil((route) => route.isFirst);
-    Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => LoginScreen()));
+    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => LoginScreen()));
   }
 
   int _tabIndex = 0;

@@ -23,15 +23,15 @@ class LoginScreen extends StatelessWidget {
 
       if (user != null) {
         MyApp.preferences.setString('userEmail', user.email ?? '<no email>');
-        Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => MainScreen()));
+        MyApp.preferences.setString('userId', user.uid);
+
+        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => MainScreen()));
       }
     }
   }
 
   void goToRegister(BuildContext context) {
-    Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => RegisterScreen()));
+    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => RegisterScreen()));
   }
 
   @override
