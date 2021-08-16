@@ -52,4 +52,9 @@ class DatabaseService {
   Future<QuerySnapshot> getAllNewsQuery() async {
     return await _newsScrollConverter.get();
   }
+
+  Future<dynamic> getImageUrlByName(String imageName) async {
+    String fullPath = 'images/' + imageName;
+    return await _storageInstance.ref().child(fullPath).getDownloadURL();
+  }
 }
