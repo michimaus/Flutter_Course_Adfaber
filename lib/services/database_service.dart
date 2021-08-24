@@ -3,14 +3,15 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/widgets.dart';
+import 'package:lectia2/main.dart';
 import 'package:lectia2/models/article_list_item_model.dart';
 
 class DatabaseService {
   final CollectionReference _newsCollection = FirebaseFirestore.instance.collection('news');
   final CollectionReference<ArticleListItemModel> _newsScrollConverter =
       FirebaseFirestore.instance.collection('news').withConverter<ArticleListItemModel>(
-            fromFirestore: (entry, _) => ArticleListItemModel.fromJson(entry.data()!),
-            toFirestore: (entry, _) => entry.toJson(),
+            fromFirestore: (entry, _) => ArticleListItemModel.fromJson(entry.data()!, entry.id),
+            toFirestore: (entry, _) => {},
           );
 
   final FirebaseStorage _storageInstance = FirebaseStorage.instance;
@@ -43,12 +44,6 @@ class DatabaseService {
     });
   }
 
-  Future<List<ArticleListItemModel>> getAllNews() async {
-    List<QueryDocumentSnapshot<ArticleListItemModel>> scrollableNews;
-    scrollableNews = await _newsScrollConverter.get().then((value) => value.docs);
-    return scrollableNews.map((e) => e.data()).toList();
-  }
-
   Future<QuerySnapshot> getAllNewsQuery() async {
     return await _newsScrollConverter.get();
   }
@@ -56,5 +51,17 @@ class DatabaseService {
   Future<dynamic> getImageUrlByName(String imageName) async {
     String fullPath = 'images/' + imageName;
     return await _storageInstance.ref().child(fullPath).getDownloadURL();
+  }
+
+  Future<void> registerLikeToDocument(String documentId, bool didLike) async {
+    if (didLike) {
+      _newsCollection.doc(documentId).update({
+        'likesOfUsers': FieldValue.arrayUnion([MyApp.preferences.getString('userId')]),
+      });
+    } else {
+      _newsCollection.doc(documentId).update({
+        'likesOfUsers': FieldValue.arrayRemove([MyApp.preferences.getString('userId')]),
+      });
+    }
   }
 }

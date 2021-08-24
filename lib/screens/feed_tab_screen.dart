@@ -12,52 +12,10 @@ Widget waitingWidget = Container(
   child: CircularProgressIndicator(),
 );
 
-List<Widget> mockContainers = [
-  for (int i = 0; i < 100; i += 1)
-    Card(
-      clipBehavior: Clip.antiAlias,
-      elevation: 10,
-      child: Column(
-        children: [
-          ListTile(
-            title: Text("News Number " + i.toString()),
-          ),
-          Container(
-            height: 100,
-            width: 500,
-            color: Colors.lightBlueAccent,
-            child: Text("Image to be added..."),
-          ),
-          Container(
-            alignment: Alignment.topLeft,
-            margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Text("Some short description coming here"),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              MaterialButton(
-                onPressed: () {},
-                child: Text("Comments"),
-              ),
-              IconButton(
-                onPressed: () {},
-                icon: Icon(Icons.favorite_border),
-              ),
-              IconButton(
-                onPressed: () {},
-                icon: Icon(Icons.bookmark_border),
-              ),
-            ],
-          )
-        ],
-      ),
-      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-    )
-];
-
 class FeedTabScreen extends StatelessWidget {
   final DatabaseService databaseService = DatabaseService();
+
+  List<ValueNotifier> likeNotifiers = [];
 
   @override
   Widget build(BuildContext context) {
@@ -69,64 +27,128 @@ class FeedTabScreen extends StatelessWidget {
 
           List<ArticleListItemModel?> entries = snapshot.data!.docs.map((e) => e.data()).toList().cast();
 
+          for (ArticleListItemModel? entry in entries) {
+            likeNotifiers.add(ValueNotifier(entry!.didLike));
+          }
+
           return ListView.builder(
             itemCount: snapshot.data!.size,
-            itemBuilder: (BuildContext context, int index) => Card(
-              clipBehavior: Clip.antiAlias,
-              elevation: 10,
-              child: Column(
-                children: [
-                  ListTile(
-                    title: Text(entries[index]!.title),
-                  ),
-                  FutureBuilder(
-                    future: databaseService.getImageUrlByName(entries[index]!.imageName),
-                    builder: (BuildContext context, AsyncSnapshot<dynamic> imageSnapshot) {
-                      if (imageSnapshot.connectionState == ConnectionState.done) {
-                        return Container(
-                          height: 100,
-                          width: 500,
-                          color: Colors.lightBlueAccent,
-                          child: ClipRRect(
-                            child: Image.network(imageSnapshot.data),
-                          ),
-                        );
-                      } else if (imageSnapshot.connectionState == ConnectionState.none) {
-                        return Container(
-                          alignment: Alignment.center,
-                          child: Text("Connection error!"),
-                        );
-                      } else {
-                        return waitingWidget;
-                      }
-                    },
-                  ),
-                  Container(
-                    alignment: Alignment.topLeft,
-                    margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Text(entries[index]!.short),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
+            itemBuilder: (BuildContext context, int index) =>
+                Card(
+                  clipBehavior: Clip.antiAlias,
+                  elevation: 10,
+                  child: Column(
                     children: [
-                      MaterialButton(
-                        onPressed: () {},
-                        child: Text("Comments"),
+                      ListTile(
+                        title: Text(
+                          entries[index]!.title,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                          ),
+                        ),
                       ),
-                      IconButton(
-                        onPressed: () {},
-                        icon: Icon(Icons.favorite_border),
+                      FutureBuilder(
+                        future: databaseService.getImageUrlByName(entries[index]!.imageName),
+                        builder: (BuildContext context, AsyncSnapshot<dynamic> imageSnapshot) {
+                          if (imageSnapshot.connectionState == ConnectionState.done) {
+                            return Container(
+                              height: 220,
+                              width: 500,
+                              child: Stack(
+                                children: [
+                                  Container(
+                                    height: 220,
+                                    width: 500,
+                                    padding: EdgeInsets.symmetric(vertical: 4),
+                                    child: ClipRRect(
+                                      child: Image.network(
+                                        imageSnapshot.data,
+                                        // fit: BoxFit.cover,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    decoration: new BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Colors.white,
+                                          Colors.white,
+                                          Colors.white30,
+                                          Colors.white10,
+                                          Colors.transparent,
+                                          Colors.transparent,
+                                          Colors.transparent,
+                                          Colors.transparent,
+                                          Colors.white10,
+                                          Colors.white30,
+                                          Colors.white,
+                                          Colors.white,
+                                        ],
+                                        begin: Alignment.topCenter,
+                                        end: Alignment.bottomCenter,
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            );
+                          } else if (imageSnapshot.connectionState == ConnectionState.none) {
+                            return Container(
+                              alignment: Alignment.center,
+                              child: Text("Connection error!"),
+                            );
+                          } else {
+                            return Column(
+                              children: [
+                                waitingWidget,
+                              ],
+                            );
+                          }
+                        },
                       ),
-                      IconButton(
-                        onPressed: () {},
-                        icon: Icon(Icons.bookmark_border),
+                      Container(
+                        alignment: Alignment.topLeft,
+                        margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        child: Text(entries[index]!.short),
                       ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          MaterialButton(
+                            onPressed: () {},
+                            child: Text("Comments"),
+                          ),
+                          ValueListenableBuilder(
+                            valueListenable: likeNotifiers[index],
+                            builder: (BuildContext context, value, Widget? child) =>
+                                IconButton(
+                                  onPressed: () {
+                                    likeNotifiers[index].value = !likeNotifiers[index].value;
+                                    databaseService.registerLikeToDocument(
+                                        entries[index]!.documentId, likeNotifiers[index].value);
+                                  },
+                                  icon: likeNotifiers[index].value
+                                      ? Icon(
+                                    Icons.favorite,
+                                    color: Colors.redAccent,
+                                  )
+                                      : Icon(
+                                    Icons.favorite_border,
+                                  ),
+                                ),
+                          ),
+                          IconButton(
+                            onPressed: () {},
+                            icon: Icon(Icons.bookmark_border),
+                          ),
+                        ],
+                      )
                     ],
-                  )
-                ],
-              ),
-              margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-            ),
+                  ),
+                  margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                ),
           );
         } else if (snapshot.connectionState == ConnectionState.none) {
           return Container(
@@ -138,11 +160,6 @@ class FeedTabScreen extends StatelessWidget {
           child: waitingWidget,
         );
       },
-      // builder: (context, AsyncSnapshot<QuerySnapshot> snapshot),
-      // value: DatabaseService().getAllNews(),
-      // child: Container(
-      //     child: ListView.builder(itemBuilder: itemBuilder)
-      // ),
     );
   }
 }
