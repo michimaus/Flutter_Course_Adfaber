@@ -33,122 +33,90 @@ class FeedTabScreen extends StatelessWidget {
 
           return ListView.builder(
             itemCount: snapshot.data!.size,
-            itemBuilder: (BuildContext context, int index) =>
-                Card(
-                  clipBehavior: Clip.antiAlias,
-                  elevation: 10,
-                  child: Column(
-                    children: [
-                      ListTile(
-                        title: Text(
-                          entries[index]!.title,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
+            itemBuilder: (BuildContext context, int index) => Card(
+              clipBehavior: Clip.antiAlias,
+              elevation: 10,
+              child: Column(
+                children: [
+                  ListTile(
+                    title: Text(
+                      entries[index]!.title,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                      ),
+                    ),
+                  ),
+                  FutureBuilder(
+                    future: databaseService.getImageUrlByName(entries[index]!.imageName),
+                    builder: (BuildContext context, AsyncSnapshot<dynamic> imageSnapshot) {
+                      if (imageSnapshot.connectionState == ConnectionState.done) {
+                        return Container(
+                          height: 220,
+                          width: 500,
+                          padding: EdgeInsets.symmetric(vertical: 4),
+                          child: ClipRRect(
+                            child: Image.network(
+                              imageSnapshot.data,
+                              // fit: BoxFit.cover,
+                              fit: BoxFit.cover,
+                            ),
                           ),
+                        );
+                      } else if (imageSnapshot.connectionState == ConnectionState.none) {
+                        return Container(
+                          alignment: Alignment.center,
+                          child: Text("Connection error!"),
+                        );
+                      } else {
+                        return Column(
+                          children: [
+                            waitingWidget,
+                          ],
+                        );
+                      }
+                    },
+                  ),
+                  Container(
+                    alignment: Alignment.topLeft,
+                    margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Text(entries[index]!.short),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      MaterialButton(
+                        onPressed: () {},
+                        child: Text("Comments"),
+                      ),
+                      ValueListenableBuilder(
+                        valueListenable: likeNotifiers[index],
+                        builder: (BuildContext context, value, Widget? child) => IconButton(
+                          onPressed: () {
+                            likeNotifiers[index].value = !likeNotifiers[index].value;
+                            databaseService.registerLikeToDocument(
+                                entries[index]!.documentId, likeNotifiers[index].value);
+                          },
+                          icon: likeNotifiers[index].value
+                              ? Icon(
+                                  Icons.favorite,
+                                  color: Colors.redAccent,
+                                )
+                              : Icon(
+                                  Icons.favorite_border,
+                                ),
                         ),
                       ),
-                      FutureBuilder(
-                        future: databaseService.getImageUrlByName(entries[index]!.imageName),
-                        builder: (BuildContext context, AsyncSnapshot<dynamic> imageSnapshot) {
-                          if (imageSnapshot.connectionState == ConnectionState.done) {
-                            return Container(
-                              height: 220,
-                              width: 500,
-                              child: Stack(
-                                children: [
-                                  Container(
-                                    height: 220,
-                                    width: 500,
-                                    padding: EdgeInsets.symmetric(vertical: 4),
-                                    child: ClipRRect(
-                                      child: Image.network(
-                                        imageSnapshot.data,
-                                        // fit: BoxFit.cover,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                  ),
-                                  Container(
-                                    decoration: new BoxDecoration(
-                                      gradient: LinearGradient(
-                                        colors: [
-                                          Colors.white,
-                                          Colors.white,
-                                          Colors.white30,
-                                          Colors.white10,
-                                          Colors.transparent,
-                                          Colors.transparent,
-                                          Colors.transparent,
-                                          Colors.transparent,
-                                          Colors.white10,
-                                          Colors.white30,
-                                          Colors.white,
-                                          Colors.white,
-                                        ],
-                                        begin: Alignment.topCenter,
-                                        end: Alignment.bottomCenter,
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              ),
-                            );
-                          } else if (imageSnapshot.connectionState == ConnectionState.none) {
-                            return Container(
-                              alignment: Alignment.center,
-                              child: Text("Connection error!"),
-                            );
-                          } else {
-                            return Column(
-                              children: [
-                                waitingWidget,
-                              ],
-                            );
-                          }
-                        },
+                      IconButton(
+                        onPressed: () {},
+                        icon: Icon(Icons.bookmark_border),
                       ),
-                      Container(
-                        alignment: Alignment.topLeft,
-                        margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        child: Text(entries[index]!.short),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          MaterialButton(
-                            onPressed: () {},
-                            child: Text("Comments"),
-                          ),
-                          ValueListenableBuilder(
-                            valueListenable: likeNotifiers[index],
-                            builder: (BuildContext context, value, Widget? child) =>
-                                IconButton(
-                                  onPressed: () {
-                                    likeNotifiers[index].value = !likeNotifiers[index].value;
-                                    databaseService.registerLikeToDocument(
-                                        entries[index]!.documentId, likeNotifiers[index].value);
-                                  },
-                                  icon: likeNotifiers[index].value
-                                      ? Icon(
-                                    Icons.favorite,
-                                    color: Colors.redAccent,
-                                  )
-                                      : Icon(
-                                    Icons.favorite_border,
-                                  ),
-                                ),
-                          ),
-                          IconButton(
-                            onPressed: () {},
-                            icon: Icon(Icons.bookmark_border),
-                          ),
-                        ],
-                      )
                     ],
-                  ),
-                  margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                ),
+                  )
+                ],
+              ),
+              margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            ),
           );
         } else if (snapshot.connectionState == ConnectionState.none) {
           return Container(
