@@ -23,6 +23,8 @@ class RegisterScreen extends StatelessWidget {
 
       if (user != null) {
         MyApp.preferences.setString('userEmail', user.email ?? '<no email>');
+        MyApp.preferences.setString('userId', user.uid);
+
         Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => MainScreen()));
       }
@@ -30,8 +32,7 @@ class RegisterScreen extends StatelessWidget {
   }
 
   void goToLogin(BuildContext context) {
-    Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => LoginScreen()));
+    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => LoginScreen()));
   }
 
   @override
@@ -154,8 +155,7 @@ class RegisterScreen extends StatelessWidget {
               MaterialButton(
                 child: Text("Register"),
                 onPressed: () {
-                  register(
-                      emailController.text, passwordController.text, context);
+                  register(emailController.text, passwordController.text, context);
                 },
                 color: Colors.blue,
               ),

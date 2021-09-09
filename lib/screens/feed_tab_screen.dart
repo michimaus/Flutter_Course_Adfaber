@@ -41,7 +41,7 @@ List<Widget> mockContainers = [
           )
         ],
       ),
-      margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
     )
 ];
 
