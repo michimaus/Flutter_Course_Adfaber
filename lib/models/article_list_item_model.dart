@@ -7,6 +7,7 @@ class ArticleListItemModel {
     required this.imageName,
     required this.short,
     required this.title,
+    required this.userEmail,
     required this.didLike,
   });
 
@@ -15,6 +16,7 @@ class ArticleListItemModel {
   String imageName;
   String short;
   String title;
+  String userEmail;
   bool didLike;
 
   factory ArticleListItemModel.fromJson(Map<String, dynamic> receivedJson, String documentId) {
@@ -31,6 +33,7 @@ class ArticleListItemModel {
       imageName: receivedJson['imageName'],
       short: receivedJson['short'],
       title: receivedJson['title'],
+      userEmail: receivedJson['userEmail'],
       didLike: didLikeCurrent,
     );
   }

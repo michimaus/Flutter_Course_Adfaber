@@ -1,14 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:lectia2/common_widgets/list_card_item.dart';
 import 'package:lectia2/models/article_list_item_model.dart';
 import 'package:lectia2/services/database_service.dart';
-
-Widget waitingWidget = Container(
-  height: 32,
-  width: 32,
-  child: CircularProgressIndicator(),
-);
 
 class FeedTabScreen extends StatelessWidget {
   final DatabaseService databaseService = DatabaseService();
@@ -29,84 +24,16 @@ class FeedTabScreen extends StatelessWidget {
 
           return ListView.builder(
             itemCount: snapshot.data!.size,
-            itemBuilder: (context, int index) => Card(
-              clipBehavior: Clip.antiAlias,
-              elevation: 10,
-              child: Column(
-                children: [
-                  ListTile(
-                    title: Text(
-                      entries[index].title,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
-                    ),
-                  ),
-                  FutureBuilder(
-                    future: databaseService.getImageUrlByName(entries[index].imageName),
-                    builder: (context, AsyncSnapshot<dynamic> imageSnapshot) {
-                      if (imageSnapshot.connectionState == ConnectionState.done) {
-                        return Container(
-                          height: 220,
-                          width: 500,
-                          padding: EdgeInsets.symmetric(vertical: 4),
-                          child: ClipRRect(
-                            child: Image.network(
-                              imageSnapshot.data,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        );
-                      } else if (imageSnapshot.connectionState == ConnectionState.none) {
-                        return Container(
-                          alignment: Alignment.center,
-                          child: Text("Connection error!"),
-                        );
-                      }
-
-                      return waitingWidget;
-                    },
-                  ),
-                  Container(
-                    alignment: Alignment.topLeft,
-                    margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Text(entries[index].short),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      MaterialButton(
-                        onPressed: () {},
-                        child: Text("Comments"),
-                      ),
-                      ValueListenableBuilder(
-                        valueListenable: likeNotifiers[index],
-                        builder: (context, value, Widget? child) => IconButton(
-                          onPressed: () {
-                            likeNotifiers[index].value = !likeNotifiers[index].value;
-                            databaseService.registerLikeToDocument(
-                                entries[index].documentId, likeNotifiers[index].value);
-                          },
-                          icon: likeNotifiers[index].value
-                              ? Icon(
-                                  Icons.favorite,
-                                  color: Colors.redAccent,
-                                )
-                              : Icon(
-                                  Icons.favorite_border,
-                                ),
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () {},
-                        icon: Icon(Icons.bookmark_border),
-                      ),
-                    ],
-                  )
-                ],
-              ),
-              margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            itemBuilder: (context, int index) => CardItem(
+              databaseService: databaseService,
+              title: entries[index].title,
+              content: entries[index].content,
+              documentId: entries[index].documentId,
+              imageName: entries[index].imageName,
+              index: index,
+              likeNotifier: likeNotifiers[index],
+              short: entries[index].short,
+              ownerEmail: entries[index].userEmail,
             ),
           );
         } else if (snapshot.connectionState == ConnectionState.none) {

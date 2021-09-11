@@ -63,8 +63,14 @@ class AddPostScreen extends StatelessWidget {
                 String imageStorageName =
                     await databaseService.uploadImage(_imageFile, MyApp.preferences.getString('userId')!);
 
-                await databaseService.addNews(titleController.text, shortController.text, contentController.text,
-                    MyApp.preferences.getString('userId')!, imageStorageName);
+                await databaseService.addNews(
+                  titleController.text,
+                  shortController.text,
+                  contentController.text,
+                  MyApp.preferences.getString('userId')!,
+                  MyApp.preferences.getString('userEmail')!,
+                  imageStorageName,
+                );
 
                 Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => MainScreen()));
               },
