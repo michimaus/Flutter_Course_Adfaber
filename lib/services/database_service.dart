@@ -30,6 +30,7 @@ class DatabaseService {
     String short,
     String content,
     String userId,
+    String userEmail,
     String imageName,
   ) async {
     return _newsCollection.doc().set({
@@ -37,6 +38,7 @@ class DatabaseService {
       'short': short,
       'content': content,
       'userId': userId,
+      'userEmail': userEmail,
       'imageName': imageName,
       'likesOfUsers': [],
       'comments': [],
