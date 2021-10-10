@@ -16,6 +16,8 @@ class SearchNewsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    likeNotifiers = [];
+
     return Container(
       child: Column(
         children: [
@@ -92,6 +94,7 @@ class SearchNewsScreen extends StatelessWidget {
                                   content: entries[index].content,
                                   userEmail: entries[index].userEmail,
                                   likeNotifier: likeNotifiers[index],
+                                  commentsId: entries[index].commentsId,
                                 ));
                       } else if (snapshot.connectionState == ConnectionState.none) {
                         return Container(

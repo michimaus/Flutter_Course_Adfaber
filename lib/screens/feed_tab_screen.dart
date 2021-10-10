@@ -12,6 +12,8 @@ class FeedTabScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    likeNotifiers = [];
+
     return FutureBuilder(
       future: databaseService.getAllNewsQuery(),
       builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -34,6 +36,7 @@ class FeedTabScreen extends StatelessWidget {
                     content: entries[index].content,
                     userEmail: entries[index].userEmail,
                     likeNotifier: likeNotifiers[index],
+                    commentsId: entries[index].commentsId,
                   ));
         } else if (snapshot.connectionState == ConnectionState.none) {
           return Container(

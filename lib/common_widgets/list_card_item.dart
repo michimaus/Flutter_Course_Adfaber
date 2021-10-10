@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:lectia2/common_widgets/article_content_screen.dart';
 import 'package:lectia2/services/database_service.dart';
 
+import 'comments_of_post.dart';
+
 Widget waitingWidget = Container(
   height: 32,
   width: 32,
@@ -22,6 +24,8 @@ class CardItem extends StatelessWidget {
   String userEmail;
   ValueNotifier likeNotifier;
 
+  List<String> commentsId;
+
   CardItem({
     required this.databaseService,
     required this.index,
@@ -32,6 +36,8 @@ class CardItem extends StatelessWidget {
     required this.content,
     required this.userEmail,
     required this.likeNotifier,
+
+    required this.commentsId,
   });
 
   void displayFullPost(BuildContext context, String imageName) {
@@ -98,7 +104,16 @@ class CardItem extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 MaterialButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => CommentsOfPost(
+                              databaseService: this.databaseService,
+                              userEmail: this.userEmail,
+                              title: this.title,
+                              articleId: this.documentId,
+                              commentsId: this.commentsId,
+                            )));
+                  },
                   child: Text("Comments"),
                 ),
                 ValueListenableBuilder(
