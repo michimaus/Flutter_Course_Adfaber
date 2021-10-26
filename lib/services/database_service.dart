@@ -28,10 +28,14 @@ class DatabaseService {
 
   Future<String> uploadImage(File file, String userId) async {
     String fullFileName = userId + '_' + file.path.split('/').last;
-
     await _storageInstance.ref('images/' + fullFileName).putFile(file);
 
     return fullFileName;
+  }
+
+  Future<void> uploadProfilePicture(File file, String userId) async {
+    String fileName = userId;
+    await _storageInstance.ref('profile/' + fileName).putFile(file);
   }
 
   Future<void> addNews(
@@ -74,6 +78,10 @@ class DatabaseService {
     return await _newsScrollConverter.get();
   }
 
+  Future<QuerySnapshot> getNewsOfUserQuery() async {
+    return await _newsScrollConverter.where('userId', isEqualTo: MyApp.preferences.getString('userId')!).get();
+  }
+
   Future<QuerySnapshot> getAllCommentsOfArticle(List<String> commentsId) async {
     return await _commentsScrollConverter
         // .orderBy("commentTime", descending: true)
@@ -83,6 +91,11 @@ class DatabaseService {
 
   Future<dynamic> getImageUrlByName(String imageName) async {
     String fullPath = 'images/' + imageName;
+    return await _storageInstance.ref().child(fullPath).getDownloadURL();
+  }
+
+  Future<dynamic> getProfileUrlByName(String imageName) async {
+    String fullPath = 'profile/' + imageName;
     return await _storageInstance.ref().child(fullPath).getDownloadURL();
   }
 

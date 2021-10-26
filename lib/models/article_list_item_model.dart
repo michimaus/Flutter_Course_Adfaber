@@ -10,6 +10,7 @@ class ArticleListItemModel {
     required this.userEmail,
     required this.didLike,
     required this.commentsId,
+    required this.numberOfLikes,
   });
 
   String documentId;
@@ -21,6 +22,8 @@ class ArticleListItemModel {
   bool didLike;
 
   List<String> commentsId;
+
+  int numberOfLikes;
 
   factory ArticleListItemModel.fromJson(Map<String, dynamic> receivedJson, String documentId) {
     String? currentUserId = MyApp.preferences.getString('userId');
@@ -38,6 +41,7 @@ class ArticleListItemModel {
       userEmail: receivedJson['userEmail'],
       commentsId: List<String>.from(receivedJson['comments'] as List),
       didLike: didLikeCurrent,
+      numberOfLikes: likesOfUsers.length,
     );
   }
 }
