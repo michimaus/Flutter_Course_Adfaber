@@ -5,13 +5,22 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lectia2/main.dart';
 import 'package:lectia2/models/article_list_item_model.dart';
+import 'package:lectia2/models/comment_model.dart';
 
 class DatabaseService {
   final CollectionReference _newsCollection = FirebaseFirestore.instance.collection('news');
 
+  final CollectionReference _commentsCollection = FirebaseFirestore.instance.collection('comments');
+
   final CollectionReference<ArticleListItemModel> _newsScrollConverter =
       FirebaseFirestore.instance.collection('news').withConverter(
             fromFirestore: (entry, _) => ArticleListItemModel.fromJson(entry.data()!, entry.id),
+            toFirestore: (entry, _) => {},
+          );
+
+  final CollectionReference<CommentModel> _commentsScrollConverter =
+      FirebaseFirestore.instance.collection('comments').withConverter(
+            fromFirestore: (entry, _) => CommentModel.fromJson(entry.data()!),
             toFirestore: (entry, _) => {},
           );
 
@@ -45,8 +54,31 @@ class DatabaseService {
     });
   }
 
+  Future<void> addComment(
+    String userId,
+    String userEmail,
+    String comment,
+    String articleId,
+  ) async {
+    DocumentReference documentReference = await _commentsCollection.add({
+      'userId': userId,
+      'userEmail': userEmail,
+      'comment': comment,
+      'commentTime': FieldValue.serverTimestamp(),
+    });
+
+    registerCommentToArticle(documentReference.id, articleId);
+  }
+
   Future<QuerySnapshot> getAllNewsQuery() async {
     return await _newsScrollConverter.get();
+  }
+
+  Future<QuerySnapshot> getAllCommentsOfArticle(List<String> commentsId) async {
+    return await _commentsScrollConverter
+        // .orderBy("commentTime", descending: true)
+        .where(FieldPath.documentId, whereIn: commentsId)
+        .get();
   }
 
   Future<dynamic> getImageUrlByName(String imageName) async {
@@ -66,5 +98,11 @@ class DatabaseService {
         'likesOfUsers': FieldValue.arrayRemove([userId]),
       });
     }
+  }
+
+  Future<void> registerCommentToArticle(String commentId, String articleId) async {
+    _newsCollection.doc(articleId).update({
+      'comments': FieldValue.arrayUnion([commentId])
+    });
   }
 }
