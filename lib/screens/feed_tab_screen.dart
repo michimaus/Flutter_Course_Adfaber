@@ -12,11 +12,17 @@ class FeedTabScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    likeNotifiers = [];
+
     return FutureBuilder(
       future: databaseService.getAllNewsQuery(),
       builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
-          List<ArticleListItemModel> entries = snapshot.data!.docs.map((e) => e.data()).toList().cast();
+          List<ArticleListItemModel> entries = [];
+
+          if (snapshot.data != null) {
+            entries = snapshot.data!.docs.map((e) => e.data()).toList().cast();
+          }
 
           for (ArticleListItemModel entry in entries) {
             likeNotifiers.add(ValueNotifier(entry.didLike));
@@ -34,6 +40,7 @@ class FeedTabScreen extends StatelessWidget {
                     content: entries[index].content,
                     userEmail: entries[index].userEmail,
                     likeNotifier: likeNotifiers[index],
+                    commentsId: entries[index].commentsId,
                   ));
         } else if (snapshot.connectionState == ConnectionState.none) {
           return Container(

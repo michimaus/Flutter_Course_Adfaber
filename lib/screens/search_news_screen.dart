@@ -16,6 +16,8 @@ class SearchNewsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    likeNotifiers = [];
+
     return Container(
       child: Column(
         children: [
@@ -53,7 +55,11 @@ class SearchNewsScreen extends StatelessWidget {
                     future: databaseService.getAllNewsQuery(),
                     builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                       if (snapshot.connectionState == ConnectionState.done) {
-                        List<ArticleListItemModel> entries = snapshot.data!.docs.map((e) => e.data()).toList().cast();
+                        List<ArticleListItemModel> entries = [];
+
+                        if (snapshot.data != null) {
+                          entries = snapshot.data!.docs.map((e) => e.data()).toList().cast();
+                        }
 
                         entries.removeWhere((element) {
                           Set<String> separateWords = element.title.toString().toLowerCase().split(' ').toSet();
@@ -92,6 +98,7 @@ class SearchNewsScreen extends StatelessWidget {
                                   content: entries[index].content,
                                   userEmail: entries[index].userEmail,
                                   likeNotifier: likeNotifiers[index],
+                                  commentsId: entries[index].commentsId,
                                 ));
                       } else if (snapshot.connectionState == ConnectionState.none) {
                         return Container(
