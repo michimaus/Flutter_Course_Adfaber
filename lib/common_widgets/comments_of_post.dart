@@ -38,7 +38,6 @@ class CommentsOfPost extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('building comments');
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,

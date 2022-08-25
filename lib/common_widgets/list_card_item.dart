@@ -23,6 +23,7 @@ class CardItem extends StatelessWidget {
   String content;
   String userEmail;
   ValueNotifier likeNotifier;
+  ValueNotifier savePostNotifier;
 
   List<String> commentsId;
 
@@ -36,7 +37,7 @@ class CardItem extends StatelessWidget {
     required this.content,
     required this.userEmail,
     required this.likeNotifier,
-
+    required this.savePostNotifier,
     required this.commentsId,
   });
 
@@ -133,9 +134,21 @@ class CardItem extends StatelessWidget {
                           ),
                   ),
                 ),
-                IconButton(
-                  onPressed: () {},
-                  icon: Icon(Icons.bookmark_border),
+                ValueListenableBuilder(
+                  valueListenable: this.savePostNotifier,
+                  builder: (context, value, Widget? child) => IconButton(
+                    onPressed: () {
+                      this.savePostNotifier.value = !this.savePostNotifier.value;
+                      databaseService.registerSavedItemToPost(this.documentId, this.savePostNotifier.value);
+                    },
+                    icon: this.savePostNotifier.value
+                        ? Icon(
+                            Icons.bookmark,
+                          )
+                        : Icon(
+                            Icons.bookmark_border,
+                          ),
+                  ),
                 ),
               ],
             )

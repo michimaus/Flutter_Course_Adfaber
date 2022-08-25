@@ -7,10 +7,14 @@ import 'package:lectia2/main.dart';
 import 'package:lectia2/models/article_list_item_model.dart';
 import 'package:lectia2/models/comment_model.dart';
 
+import '../models/saved_post_ids_model.dart';
+
 class DatabaseService {
   final CollectionReference _newsCollection = FirebaseFirestore.instance.collection('news');
 
   final CollectionReference _commentsCollection = FirebaseFirestore.instance.collection('comments');
+
+  final CollectionReference _savedPostCollection = FirebaseFirestore.instance.collection('savedPostOnAccount');
 
   final CollectionReference<ArticleListItemModel> _newsScrollConverter =
       FirebaseFirestore.instance.collection('news').withConverter(
@@ -21,6 +25,12 @@ class DatabaseService {
   final CollectionReference<CommentModel> _commentsScrollConverter =
       FirebaseFirestore.instance.collection('comments').withConverter(
             fromFirestore: (entry, _) => CommentModel.fromJson(entry.data()!),
+            toFirestore: (entry, _) => {},
+          );
+
+  final CollectionReference<SavedPostsModel> _savedPostsConverter =
+      FirebaseFirestore.instance.collection('savedPostOnAccount').withConverter(
+            fromFirestore: (entry, _) => SavedPostsModel.fromJson(entry.data()!),
             toFirestore: (entry, _) => {},
           );
 
@@ -82,11 +92,38 @@ class DatabaseService {
     return await _newsScrollConverter.where('userId', isEqualTo: MyApp.preferences.getString('userId')!).get();
   }
 
-  Future<QuerySnapshot> getAllCommentsOfArticle(List<String> commentsId) async {
-    return await _commentsScrollConverter
-        // .orderBy("commentTime", descending: true)
-        .where(FieldPath.documentId, whereIn: commentsId)
+  Future<QuerySnapshot> getAllSavedNewsOfUserQuery() async {
+    List<SavedPostsModel> savedEntriesByUser = [];
+    String? userId = MyApp.preferences.getString('userId');
+
+    DocumentSnapshot snap = await _savedPostCollection.doc(userId).get();
+
+    if (snap.exists == false) {
+      _savedPostCollection.doc(userId).set({
+        'savedPostIds': [],
+      });
+    }
+
+    QuerySnapshot snapshot = await getSavedItemsIds();
+    savedEntriesByUser = snapshot.docs.map((e) => e.data()).toList().cast();
+
+    if (savedEntriesByUser[0].savedPosts.isEmpty) {
+      return await _newsScrollConverter
+          .where(FieldPath.documentId, whereIn: ['dummy'])
+          .get();
+    }
+    return await _newsScrollConverter
+        .where(FieldPath.documentId, whereIn: savedEntriesByUser.map((e) => e.savedPosts).toList()[0])
         .get();
+  }
+
+  Future<QuerySnapshot> getAllCommentsOfArticle(List<String> commentsId) async {
+    return await _commentsScrollConverter.where(FieldPath.documentId, whereIn: commentsId).get();
+  }
+
+  Future<QuerySnapshot> getSavedItemsIds() async {
+    String? userId = MyApp.preferences.getString('userId');
+    return await _savedPostsConverter.where(FieldPath.documentId, whereIn: [userId]).get();
   }
 
   Future<dynamic> getImageUrlByName(String imageName) async {
@@ -109,6 +146,28 @@ class DatabaseService {
     } else {
       _newsCollection.doc(documentId).update({
         'likesOfUsers': FieldValue.arrayRemove([userId]),
+      });
+    }
+  }
+
+  Future<void> registerSavedItemToPost(String documentId, bool didSave) async {
+    String? userId = MyApp.preferences.getString('userId');
+
+    DocumentSnapshot snap = await _savedPostCollection.doc(userId).get();
+
+    if (snap.exists == false) {
+      _savedPostCollection.doc(userId).set({
+        'savedPostIds': [],
+      });
+    }
+
+    if (didSave) {
+      _savedPostCollection.doc(userId).update({
+        'savedPostIds': FieldValue.arrayUnion([documentId]),
+      });
+    } else {
+      _savedPostCollection.doc(userId).update({
+        'savedPostIds': FieldValue.arrayRemove([documentId]),
       });
     }
   }

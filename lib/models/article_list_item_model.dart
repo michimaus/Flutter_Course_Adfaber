@@ -9,6 +9,7 @@ class ArticleListItemModel {
     required this.title,
     required this.userEmail,
     required this.didLike,
+    required this.didSave,
     required this.commentsId,
     required this.numberOfLikes,
   });
@@ -20,6 +21,7 @@ class ArticleListItemModel {
   String title;
   String userEmail;
   bool didLike;
+  bool didSave;
 
   List<String> commentsId;
 
@@ -28,6 +30,7 @@ class ArticleListItemModel {
   factory ArticleListItemModel.fromJson(Map<String, dynamic> receivedJson, String documentId) {
     String? currentUserId = MyApp.preferences.getString('userId');
     bool didLikeCurrent = false;
+    bool didSaveCurrent = false;
     List<String> likesOfUsers = List<String>.from(receivedJson['likesOfUsers']);
 
     if (likesOfUsers.contains(currentUserId)) didLikeCurrent = true;
@@ -41,6 +44,7 @@ class ArticleListItemModel {
       userEmail: receivedJson['userEmail'],
       commentsId: List<String>.from(receivedJson['comments'] as List),
       didLike: didLikeCurrent,
+      didSave: didSaveCurrent,
       numberOfLikes: likesOfUsers.length,
     );
   }
